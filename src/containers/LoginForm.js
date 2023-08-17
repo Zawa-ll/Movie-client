@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
 import { Box, Button, FormControl, FormLabel, Input, VStack, Center } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
 import popcornImage from '../assets/popcorn-1085072_1920.jpg'; // Import the image
 import { Link } from 'react-router-dom';
+import authClient from '../api/authClient';
 
 const LoginForm = () => {
     const [formData, setFormData] = useState({
         email: '',
         password: '',
     });
+
+    const navigate = useNavigate(); // Initialize useNavigate
+
+    const [redirectToRoot, setRedirectToRoot] = useState(false);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -17,10 +23,21 @@ const LoginForm = () => {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Perform login logic here
-        console.log(formData); // For demonstration purposes
+        try {
+            const { data: token } = await authClient.post('/login', formData);
+
+
+            localStorage.setItem('token', token);
+            if (token) {
+                setFormData({ username: '', email: '', password: '', });
+                navigate('/');
+            }
+
+        } catch (error) {
+            console.error('Login error', error);
+        }
     };
 
     return (

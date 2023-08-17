@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Box, Button, FormControl, FormLabel, Input, VStack, Center } from '@chakra-ui/react';
 import popcornImage from '../assets/popcorn-1085072_1920.jpg'; // Import the image
 import { Link } from 'react-router-dom';
+import authClient from '../api/authClient';
 
 const RegisterForm = () => {
     const [formData, setFormData] = useState({
@@ -18,10 +19,19 @@ const RegisterForm = () => {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Perform registration logic here
-        console.log(formData); // For demonstration purposes
+        try {
+            const response = await authClient.post('/register', formData);
+            console.log('Registration successful', response.data);
+            setFormData({
+                username: '',
+                email: '',
+                password: '',
+            });
+        } catch (error) {
+            console.error('Registration error', error);
+        }
     };
 
     return (
