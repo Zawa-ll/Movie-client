@@ -1,9 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, Image, IconButton, Text } from '@chakra-ui/react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
+import useAdImages from '../hooks/useAdImages';
 
-const AdBox = ({ movies, currentImageIndex, handleNext, handlePrevious }) => {
+const AdBox = () => {
+    const { movies } = useAdImages();
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+    console.log('ttpp:', useAdImages())
+
+    if (!movies || movies.length === 0) {
+        return null; // Return null or a loading indicator if movies is not available yet
+    }
+
     const { backdrop_path, title, vote_average } = movies[currentImageIndex] || {};
+
+    const handleNext = () => {
+        setCurrentImageIndex((prevIndex) => (prevIndex + 1) % movies.length);
+    };
+
+    const handlePrevious = () => {
+        setCurrentImageIndex((prevIndex) =>
+            prevIndex === 0 ? movies.length - 1 : prevIndex - 1
+        );
+    };
 
     return (
         <Box maxW="lg" mx="auto" mt={8} position="relative">
@@ -15,7 +35,7 @@ const AdBox = ({ movies, currentImageIndex, handleNext, handlePrevious }) => {
                 position="absolute"
                 bottom={2}
                 left={2}
-                fontSize="xl" // Larger font size for the title
+                fontSize="xl"
                 color="white"
                 fontWeight="bold"
             >

@@ -1,13 +1,28 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Flex, Button } from '@chakra-ui/react';
+import tmdbClient from '../api/tmdbClient';
 
-const GenreBar = ({ genres, selectedGenre, onSelectGenre }) => {
-    const genreWidth = 150; // Adjust the width of each genre button
-    const genresPerGroup = 5; // Adjust the number of genres per group
+const GenreBar = ({ movieQuery, onSelectGenre }) => {
+    const genreWidth = 150;
+    const genresPerGroup = 5;
+    const [genres, setGenres] = useState([]);
     const totalGenres = genres.length;
     const totalGroups = Math.ceil(totalGenres / genresPerGroup);
-
+    const selectedGenre = movieQuery;
     const [currentGroup, setCurrentGroup] = useState(0);
+
+    const fetchGenres = async () => {
+        try {
+            const response = await tmdbClient.get('/genre/movie/list');
+            setGenres(response.data.genres);
+        } catch (error) {
+            console.error('Error fetching genres:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchGenres();
+    }, []);
 
     const handleScroll = (direction) => {
         const step = direction === 'left' ? -1 : 1;
@@ -88,3 +103,4 @@ const GenreBar = ({ genres, selectedGenre, onSelectGenre }) => {
 };
 
 export default GenreBar;
+

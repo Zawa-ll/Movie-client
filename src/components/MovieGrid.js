@@ -1,12 +1,36 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { SimpleGrid } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
-import PosterCard from './PosterCard'; // Import the PosterCard component
+import PosterCard from './PosterCard';
+import tmdbClient from '../api/tmdbClient';
 
-const MovieGrid = ({ movies }) => { // Accept movies as a prop
+const MovieGrid = ({ movieQuery }) => {
+    const [filteredMovies, setFilteredMovies] = useState([]);
+
+    useEffect(() => {
+        const fetchFilteredMovies = async () => {
+            try {
+                let queryParams = {
+                    with_genres: movieQuery.selectedGenre,
+                };
+
+                // Fetch movies based on the queryParams
+                const response = await tmdbClient.get('/discover/movie', {
+                    params: queryParams,
+                });
+
+                setFilteredMovies(response.data.results);
+            } catch (error) {
+                console.error('Error fetching filtered movies:', error);
+            }
+        };
+
+        fetchFilteredMovies();
+    }, [movieQuery]);
+
     return (
         <SimpleGrid columns={4} spacing={6}>
-            {movies.map((movie) => (
+            {filteredMovies.map((movie) => (
                 <Link key={movie.id} to={`/movies/${movie.id}`}>
                     <PosterCard movie={movie} />
                 </Link>
@@ -16,33 +40,3 @@ const MovieGrid = ({ movies }) => { // Accept movies as a prop
 };
 
 export default MovieGrid;
-
-// import React from 'react';
-// import { SimpleGrid } from '@chakra-ui/react';
-// import { Link } from 'react-router-dom'; // Import Link from React Router
-// import useAdImages from '../hooks/useAdImages';
-// import PosterCard from './PosterCard'; // Import the PosterCard component
-
-// const MovieGrid = () => {
-//     const { movies, loading, error } = useAdImages();
-
-//     if (loading) {
-//         return <div>Loading...</div>;
-//     }
-
-//     if (error) {
-//         return <div>Error: {error.message}</div>;
-//     }
-
-//     return (
-//         <SimpleGrid columns={4} spacing={6}>
-//             {movies.map((movie) => (
-//                 <Link key={movie.id} to={`/movies/${movie.id}`}>
-//                     <PosterCard movie={movie} />
-//                 </Link>
-//             ))}
-//         </SimpleGrid>
-//     );
-// };
-
-// export default MovieGrid;
