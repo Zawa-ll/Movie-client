@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Flex, Button } from '@chakra-ui/react';
 import tmdbClient from '../api/tmdbClient';
+import useMovieStore from '../store';
 
-const GenreBar = ({ movieQuery, onSelectGenre }) => {
+const GenreBar = () => {
+    const { movieQuery, setSelectedGenre } = useMovieStore();
+
     const genreWidth = 150;
     const genresPerGroup = 5;
     const [genres, setGenres] = useState([]);
     const totalGenres = genres.length;
     const totalGroups = Math.ceil(totalGenres / genresPerGroup);
-    const selectedGenre = movieQuery;
+    const { selectedGenre } = movieQuery;
     const [currentGroup, setCurrentGroup] = useState(0);
 
     const fetchGenres = async () => {
@@ -63,7 +66,7 @@ const GenreBar = ({ movieQuery, onSelectGenre }) => {
                     <Button
                         key={genre.id}
                         variant={genre.id === selectedGenre ? 'solid' : 'outline'}
-                        onClick={() => onSelectGenre(genre.id)}
+                        onClick={() => setSelectedGenre(genre.id)}
                         m={2}
                         size="sm"
                         style={{
@@ -103,4 +106,6 @@ const GenreBar = ({ movieQuery, onSelectGenre }) => {
 };
 
 export default GenreBar;
+
+
 

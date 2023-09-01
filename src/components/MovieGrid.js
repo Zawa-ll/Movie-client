@@ -3,8 +3,11 @@ import { SimpleGrid } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 import PosterCard from './PosterCard';
 import tmdbClient from '../api/tmdbClient';
+import useMovieStore from '../store';
 
-const MovieGrid = ({ movieQuery }) => {
+const MovieGrid = () => {
+
+    const { movieQuery } = useMovieStore();
     const [filteredMovies, setFilteredMovies] = useState([]);
 
     useEffect(() => {

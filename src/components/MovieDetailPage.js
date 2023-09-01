@@ -19,7 +19,7 @@ const MovieDetailPage = () => {
 
     const handleLike = async () => {
         // const userId = getUserId(); // Replace with your logic to get the user ID
-        const userId = 1; // Replace with your logic to get the user ID
+        const userId = 1;
         if (!userId) {
             console.error('User ID not available.');
             return;
@@ -36,7 +36,6 @@ const MovieDetailPage = () => {
         }
     };
 
-
     const truncateText = (text, length) => {
         return text.length > length ? text.slice(0, length) + '...' : text;
     };
@@ -50,76 +49,37 @@ const MovieDetailPage = () => {
     };
 
     useEffect(() => {
-
-        const fetchImages = async () => {
+        const fetchMovieData = async () => {
             try {
-                const response = await tmdbClient.get(`/movie/${movieId}/images`);
-                setImages(response.data.backdrops);
+                const movieResponse = await tmdbClient.get(`/movie/${movieId}`);
+                setMovie(movieResponse.data);
+
+                const [
+                    videosResponse,
+                    mainActorsResponse,
+                    imagesResponse,
+                    reviewsResponse,
+                ] = await Promise.all([
+                    tmdbClient.get(`/movie/${movieId}/videos`),
+                    tmdbClient.get(`/movie/${movieId}/credits`),
+                    tmdbClient.get(`/movie/${movieId}/images`),
+                    tmdbClient.get(`/movie/${movieId}/reviews`),
+                ]);
+
+                setVideos(videosResponse.data.results);
+                setMainActors(mainActorsResponse.data.cast.slice(0, 5));
+                setImages(imagesResponse.data.backdrops);
+                setReviews(reviewsResponse.data.results);
             } catch (error) {
-                console.error('Error fetching images:', error);
+                console.error('Error fetching movie details:', error);
             }
         };
 
-        const fetchMainActors = async () => {
-            try {
-                const response = await tmdbClient.get(`/movie/${movieId}/credits`);
-                setMainActors(response.data.cast.slice(0, 5)); // Get the first 5 main actors
-            } catch (error) {
-                console.error('Error fetching main actors:', error);
-            }
-        };
-
-        const fetchMovie = async () => {
-            try {
-                const response = await tmdbClient.get(`/movie/${movieId}`);
-                setMovie(response.data);
-            } catch (error) {
-                console.error('Error fetching movie:', error);
-            }
-        };
-
-        const fetchVideos = async () => {
-            try {
-                const response = await tmdbClient.get(`/movie/${movieId}/videos`);
-                setVideos(response.data.results);
-            } catch (error) {
-                console.error('Error fetching videos:', error);
-            }
-        };
-
-        const fetchReviews = async () => {
-            try {
-                const response = await tmdbClient.get(`/movie/${movieId}/reviews`);
-                setReviews(response.data.results);
-            } catch (error) {
-                console.error('Error fetching reviews:', error);
-            }
-        };
-
-        const checkIfLiked = async () => {
-            try {
-                const response = await authClient.get(`/user/likes/check`, {
-                    params: { movieId: movie.id }
-                });
-                setIsLiked(response.data.liked);
-            } catch (error) {
-                console.error('Error checking if movie is liked:', error);
-            }
-        };
-
-
-
-        fetchMovie();
-        fetchVideos();
-        fetchMainActors();
-        fetchImages();
-        fetchReviews();
-
-        checkIfLiked();
+        fetchMovieData();
     }, [movieId]);
 
     if (!movie) {
-        return <div>Loading...</div>;
+        return <div>Movie Not Found...</div>;
     }
 
     const trailerLink = videos.find(video => video.type === 'Trailer' && video.site === 'YouTube');
